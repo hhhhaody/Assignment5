@@ -1,0 +1,72 @@
+---
+title: "Slide presentation"
+author: "Guan Xuyi"
+date: "March 15, 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+data<-read.csv(file = "E:/veg1.csv", header = TRUE)
+```
+
+## Description of the data
+
+<br>
+</center>
+
+- This data was created with USDA quickstats system using the following parameters:
+1. Program: Survey
+2. Sector: Environmental
+3. Group: Vegetables
+4. Commodity: Vegetables Totals, Vegetables other, Broccoli, Brussels Sprouts, Cauliflower.
+- All the other parameters in the data were left open
+- The data was collected to gain insights about chemical treatments applied to food crops e.g. fertilizers, insecticides, etc.
+- This findings will be presented in a ggplot and a shiny dashboard.
+
+## Reference material
+<br>
+ [tidyverse](https://www.tidyverse.org/) 
+
+ [ggplot2](http://ggplot2.org/)
+[cheatsheet - ggplot2](https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+
+ [dplyr](https://stackoverflow.com/tags/dplyr/info)  
+
+ [Pandoc](http://pandoc.org/index.html)  
+
+
+
+## Summary Output Slide
+```{r echo=FALSE}
+summary(data)
+```
+
+##GGplot slide
+ 
+ I will use the veg.1 dataset.
+ 
+ This gives an empty graph.
+ 
+* Add layers to it with GEOM_FUNCTIONS.  
+
+* [List of GEOMs](http://bit.ly/2Em0BsV) 
+
+* Each geom takes mapping argument which uses aes() to map the x and y axes.  
+
+* Add additional dimensions by mapping with color, shapes, size to other variables 
+
+```{r echo=FALSE, message=FALSE}
+library(tidyverse)
+
+```
+
+
+## Slide with R Output
+
+
+
+

@@ -1,0 +1,51 @@
+---
+title: "Slide Presentation"
+author: "Guan Xuyi"
+date: "March 15, 2018"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##Data 
+The following is the data that is used in analysis.
+Both the data files are loaded to this tab in oder to analyze them to gether and do comparison
+
+```{r}
+data<-read.csv(file = "E:/AIR.TEMPERATURES.csv", header = TRUE)
+data0<-read.csv(file = "E:/AIR.TEMPERATURES.csv", header = TRUE)
+```
+The data file for Air Temperatures is named data and that for Sea Temperatures is named data0
+
+## Exploring Data
+
+The r command summary() will be used to explore the data.
+This gives out the following outputs:
+
+## Exploring Air Temperatures
+```{r}
+summary(data)
+```
+
+##Exploring Sea Temperatures
+```{r}
+summary(data0)
+```
+
+
+## ploting the data for Air Temperatures
+```{r}
+plot<-ggplot(data = Sea.temp, mapping = aes(TIME, AVG ), environment = parent.frame())
+plot + geom_boxplot(mapping = aes(TIME))
+```
+
+## Plotting data for Sea temperatures
+```{r}
+plot0<-ggplot(data = Sea.temp, mapping = aes(TIME, AVG ), environment = parent.frame())
+plot0 + geom_boxplot(mapping = aes(TIME))
+```
+
+
+
