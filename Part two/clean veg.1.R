@@ -1,5 +1,5 @@
 library(tidyverse)
-veg.1 <- read.csv("E:/veg1.csv", header = TRUE)
+veg.1 <- read_excel("Part two/veg1.xlsx")
 
 vegcnames.1 <- colnames(veg.1)
 
@@ -23,10 +23,10 @@ cnames.2 <- colnames(veg.2)
 apply(veg.2, 2, n_distinct)
 
 veg.3 <- dplyr::rename(veg.2, 
-                       Geo = `Geo.Level`, 
+                       Geo = `Geo Level`, 
                        Commodity = `Commodity`,
-                       Data = `Data.Item`,
-                       Category = `Domain.Category`)
+                       Data = `Data Item`,
+                       Category = `Domain Category`)
 
 cnames.3 <- colnames(veg.3)
 cnames.3
