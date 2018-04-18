@@ -5,7 +5,7 @@ library(dplyr)
 library(readr)
 
 # Load data
-data <- read.csv(file = "E:/veg1.csv")
+data <- read_excel("Part two/veg1.xlsx")
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("lumen"),
