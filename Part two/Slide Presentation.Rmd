@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r}
-data<-read.csv(file = "E:/veg1.csv", header = TRUE)
+data<-read_excel("Part two/veg1.xlsx")
 ```
 
 ## Description of the data
