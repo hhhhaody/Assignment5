@@ -1,6 +1,5 @@
 library(tidyverse)
 library(stringr)
-options(warn = -1)
 
 #Step 1: Import the data of 30 years from website and combine to one set
 
@@ -117,15 +116,16 @@ y <- noon %>% separate(Date, into = c("YYYY", "MM", "DD"), sep = "-") %>%
   filter(YYYY == 2017)
 
 t.test(x$ATMP, y$ATMP)
-# Because the p-value = 7.228e-06 < 0.01, we reject the null hypothesis that the means of 
+# Because the p-value = 5.153e-13 < 0.01, we reject the null hypothesis that the means of 
 # ATMP in 1988 and in 2017 are equal, so the air temp changed over 30 years.
-# means in two years:3.273654  4.645179 
+# means in two years:2.330748  4.645179 
 
 # To see whether the mean sea temp changed over 30 years, we need to do t-test
 # Creating datasets which are only for 1988 and 2017
 t.test(x$WTMP, y$WTMP)
-# Because the p-value = 8.535e-09 < 0.01, we reject the null hypothesis that the means of 
+# Because the p-value = 9.035e-13 < 0.01, we reject the null hypothesis that the means of 
 # WTMP in 1988 and in 2017 are equal,so the sea temp changed over 30 years.
+# means in two years: 4.572981  6.141525 
 
 ## By using the total dataset for each year, we do t-test for the mean of ATMP again
 mr1988 <- mr1988 %>% mutate(ATMP = ifelse(ATMP > 90, NA, ATMP)) %>% 
@@ -154,3 +154,4 @@ t.test(x2, y2, na.rm=TRUE)
 # Because the p-value < 2.2e-16 < 0.01, we reject the null hypothesis that the means of 
 # WTMP in 1988 and in 2017 are equal,so sea temp changed over 30 years.
 # means in two years:  4.608660  6.156853
+

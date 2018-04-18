@@ -1,51 +1,187 @@
 ---
 title: "Slide Presentation"
-author: "Guan Xuyi"
+author: "Guan Xuyi, Deyan Hao"
 date: "March 15, 2018"
 output: ioslides_presentation
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(
+	echo = FALSE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+## Introduction
+In this project, we will 
+
+1. read, clean, and organize the data from the website for NOAA Weather Station buoy 46035 at 57.026 N 177.738 W in the NOAA National Data Buoy Center 
+
+2. produce a time series composed of 30 years of daily Air Temperature and Sea Temperature readings recorded at noon
+
+3. visualize and explore the correlation between air temperature and sea temperature 
+
+4. test whether the mean temperature changed over the past 30 years
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(stringr)
+
+a <- "http://www.ndbc.noaa.gov/view_text_file.php?filename=46035h"
+b <- ".txt.gz&dir=data/historical/stdmet/"
+years <- c(1988:2017)
+
+years <- years[-26]
+urls <- str_c(a, years, b, sep = "")
+filenames <- str_c("mr", years, sep = "")
+
+N <- length(urls)
+
+
+for (i in 1:N){
+  suppressMessages(assign(filenames[i], read_table(urls[i], col_names = TRUE)))
+  file <- get(filenames[i])
+  colnames(file)[1] <-"YYYY"
+  if (i < 18) {
+    file <- file %>% mutate(mm = "00")
+  }
+  file <- file %>% select(YYYY, MM, DD, hh, mm, ATMP, WTMP)
+  if (i >= 20) {
+    file <- file[-1,]
+  }
+  if (i >= 26) {
+    file[1] <- i + 1988
+  }
+  else{
+    file[1] <- i + 1987
+  }
+  if(i == 1){
+    total <- file
+  }
+  else{
+    total <- rbind.data.frame(total, file)
+  }
+}
+
+ 
+noon <- total %>% filter((hh == "11" & mm == "50") | (hh == "12" & mm == "00"))
+
+
+noon$ATMP <- as.numeric(noon$ATMP)
+noon$WTMP <- as.numeric(noon$WTMP)
+
+
+noon$ATMP <- ifelse(noon$ATMP > 90, NA, noon$ATMP)
+noon$WTMP <- ifelse(noon$WTMP > 90, NA, noon$WTMP)
+
+
+noon <- unite(noon, Date, YYYY, MM, DD, sep = "-")
+noon$Date <-as.Date(noon$Date)
+
 ```
 
-##Data 
-The following is the data that is used in analysis.
-Both the data files are loaded to this tab in oder to analyze them to gether and do comparison
+## Time Series for Air Temperature
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+noon %>% ggplot(aes(Date, ATMP)) +
+  geom_line(na.rm = TRUE, col = "red") +
+  labs(title = "Time Series of Air Temperature (noon)",
+       subtitle = "Data obtained from the National Data Buoy Center",
+       y = "Temperature (Celcius)",
+       x = "Year")
 
-```{r}
-data<-read.csv(file = "E:/AIR.TEMPERATURES.csv", header = TRUE)
-data0<-read.csv(file = "E:/AIR.TEMPERATURES.csv", header = TRUE)
-```
-The data file for Air Temperatures is named data and that for Sea Temperatures is named data0
-
-## Exploring Data
-
-The r command summary() will be used to explore the data.
-This gives out the following outputs:
-
-## Exploring Air Temperatures
-```{r}
-summary(data)
 ```
 
-##Exploring Sea Temperatures
-```{r}
-summary(data0)
+## Time Series for Sea Temperature
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+noon %>% ggplot(aes(Date, WTMP)) +
+  geom_line(na.rm = TRUE, col = "blue") +
+  labs(title = "Time Series of Sea Temperature (noon)",
+       subtitle = "Data obtained from the National Data Buoy Center",
+       y = "Temperature (Celcius)",
+       x = "Year")
 ```
 
-
-## ploting the data for Air Temperatures
-```{r}
-plot<-ggplot(data = Sea.temp, mapping = aes(TIME, AVG ), environment = parent.frame())
-plot + geom_boxplot(mapping = aes(TIME))
+## Time Series for Air and Sea Temperatures
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(noon, aes(Date)) + 
+  geom_line(aes(y = ATMP, col = "ATMP")) + 
+  geom_line(aes(y = WTMP, col = "WTMP")) +
+  scale_colour_manual(values=c("red", "blue")) +
+  labs(x = "Year", y = "Temperature (Celcius Degree)",
+       title = "Time Series of Air & Sea Temperature (Noon Data)",
+       subtitle = "Data obtained from the National Data Buoy Center")
 ```
 
-## Plotting data for Sea temperatures
-```{r}
-plot0<-ggplot(data = Sea.temp, mapping = aes(TIME, AVG ), environment = parent.frame())
-plot0 + geom_boxplot(mapping = aes(TIME))
+## Scatter Plot to See the Correlation between ATMP and WTMP
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(noon) + 
+  geom_point(mapping = aes(x = ATMP, y = WTMP)) +
+  labs(x = "Noon Air Temp (Celcius)", 
+       y = "Noon Sea Temp (Celcius)",
+       title = "Scatter Plot to See the Correlation between ATMP and WTMP")
+
 ```
 
+##  Smooth Line to See the Correlation between ATMP and WTMP
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+ggplot(noon) + 
+  geom_smooth(mapping = aes(x = ATMP, y = WTMP)) +
+  labs(x = "Noon Air Temp (Celcius)", 
+       y = "Noon Sea Temp (Celcius)",
+       title = "Smooth Line to See the Correlation between ATMP and WTMP")
 
+```
 
+## Air and Sea Temperature Correlation
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+cor.test(noon$ATMP, noon$WTMP, method = "pearson")
+```
+
+## Test Whether Air Temperature Changed from 1988 to 2017 (Noon_Data)
+```{r warning=FALSE, include=FALSE}
+x <- noon %>% separate(Date, into = c("YYYY", "MM", "DD"), sep = "-") %>% 
+  filter(YYYY == 1988)
+y <- noon %>% separate(Date, into = c("YYYY", "MM", "DD"), sep = "-") %>% 
+  filter(YYYY == 2017)
+
+t.test(x$ATMP, y$ATMP)
+```
+Because the p-value = 5.153e-13 < 0.01, we reject the null hypothesis that the means of ATMP in 1988 and in 2017 are equal, so the air temp changed over 30 years.
+Means in two years:2.330748  4.645179 
+
+## Test Whether Sea Temperature Changed from 1988 to 2017 (Noon_Data)
+```{r warning=FALSE, include=FALSE}
+t.test(x$WTMP, y$WTMP)
+```
+Because the p-value = 9.035e-13 < 0.01, we reject the null hypothesis that the means of WTMP in 1988 and in 2017 are equal,so the sea temp changed over 30 years.
+Means in two years: 4.572981  6.141525 
+
+## Test Whether Air Temperature Changed from 1988 to 2017 (Total Data)
+```{r warning=FALSE, include=FALSE}
+mr1988 <- mr1988 %>% mutate(ATMP = ifelse(ATMP > 90, NA, ATMP)) %>% 
+  mutate(ATMP = as.numeric(ATMP))
+mr2017 <- mr2017 %>% mutate(ATMP = ifelse(ATMP > 90, NA, ATMP)) %>% 
+  mutate(ATMP = as.numeric(ATMP))
+
+x1 <- mr1988$ATMP
+y1 <- mr2017$ATMP
+
+t.test(x1, y1, na.rm=TRUE)
+```
+Because the p-value < 2.2e-16 < 0.01, we reject the null hypothesis that the means of ATMP in 1988 and in 2017 are equal,so air temp changed over 30 years.
+Means in two years:  2.438602  4.714333
+
+## Test Whether Sea Temperature Changed from 1988 to 2017 (Total Data)
+```{r message=FALSE, warning=FALSE, include=FALSE}
+mr1988 <- mr1988 %>% mutate(WTMP = ifelse(WTMP > 90, NA, WTMP)) %>% 
+  mutate(WTMP = as.numeric(WTMP))
+mr2017 <- mr2017 %>% mutate(WTMP = ifelse(WTMP > 90, NA, WTMP)) %>% 
+  mutate(WTMP = as.numeric(WTMP))
+
+x2 <- mr1988$WTMP
+y2 <- mr2017$WTMP
+
+t.test(x2, y2, na.rm=TRUE)
+```
+Because the p-value < 2.2e-16 < 0.01, we reject the null hypothesis that the means of WTMP in 1988 and in 2017 are equal,so sea temp changed over 30 years.
+Means in two years:  4.608660  6.156853
